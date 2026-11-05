@@ -8,6 +8,7 @@ Configurations compared on the same 24 English questions:
   A closed book (AgriParam alone) | B RAG, raw answer | C RAG + numeric verifier (final answer)
 """
 import json
+import os
 import re
 import statistics as st
 import sys
@@ -111,6 +112,8 @@ def space():
     cases = load_cases("test_cases.jsonl")
     plans = (("rag.jsonl", "/ask_live", cases),  # /ask_live never returns saved answers
              ("closed_book.jsonl", "/closed_book", [c for c in cases if c["lang"] == "en" and not c["should_refuse"]]))
+    if os.environ.get("RAG_OUT"):  # re-run the RAG pipeline into another file (e.g. rag_v3.jsonl); keep v1 untouched
+        plans = ((os.environ["RAG_OUT"], "/ask_live", cases),)
     for name, api, subset in plans:
         path = RES / name
         done = {r["id"] for r in read_jsonl(path)}

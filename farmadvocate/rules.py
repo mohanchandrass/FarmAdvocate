@@ -16,13 +16,103 @@ def route(question_en):
     return None
 
 
+# ---------------------------------------------------------------- input safety
+_SPECIAL = re.compile(r"</?\s*(?:user|assistant|context|system_prompt|s)\s*>", re.I)
+MAX_QUESTION_CHARS = 400
+
+
+def sanitize(question):
+    """Remove the model's prompt-format tokens from user text (they could forge a context or a turn) and cap length."""
+    return _SPECIAL.sub(" ", question).strip()[:MAX_QUESTION_CHARS]
+
+
+_INJECTION = re.compile(
+    r"\b(?:ignore|disregard|forget|override|bypass)\b[^.?!]{0,40}\b(?:instruction|instructions|prompt|rules|context|sources|everything|above|before)\b|"
+    r"\b(?:system|developer)\s*(?:prompt|message|instruction)|"
+    r"\b(?:reveal|print|show|repeat|output|display)\b[^.?!]{0,30}\b(?:prompt|instructions|words above|text above|system)\b|"
+    r"\byou are now\b|\bpretend (?:to be|you)\b|\bact as\b|\bjailbreak\b|\bdeveloper mode\b|\broleplay\b|"
+    r"\breply only with\b|\brespond only with\b|\bsay that you\b|^\s*system\s*:|\bnew instructions?\b",
+    re.I | re.M)
+
+
+def is_injection(text):
+    return bool(_INJECTION.search(text))
+
+
+# A question must be about growing or managing a crop; cooking, health, gardening and the like are not in the guide.
+_CULTIVATION = re.compile(
+    r"\b(?:sow\w*|sown|seed\w*|plant\w*|grow\w*|cultivat\w*|fertili[sz]\w*|manur\w*|fym|compost|urea|dap|npk|nitrogen|"
+    r"phosph\w*|potash|potassium|gypsum|zinc|sulph\w*|nutrient\w*|dose\w*|dosage|spacing|apart|rows?|depth|season\w*|"
+    r"yield\w*|harvest\w*|transplant\w*|nursery|irrigat\w*|water\w*|moisture|soil\w*|tillage|ploughing|field|crop|"
+    r"kg|hectare|acre|cents?|fallow|mulch\w*|weed\w*|seedling\w*|sapling\w*|variet\w*)\b", re.I)
+_NON_FARM_INTENT = re.compile(
+    r"\b(?:cook\w*|boil\w*|bake|baking|fry\w*|recipe\w*|eat|eating|diet\w*|tast\w*|calorie\w*|nutrition\w*|health\w*|"
+    r"diabet\w*|flour|roti|chapati|bread|cake|poem|story|stories|joke|song|lawn|garden\w*|indoor|houseplant\w*|balcony|"
+    r"terrace|aquarium|hair|skin|cosmetic\w*|medicine|history|invent\w*)\b", re.I)
+
+
+def farming_intent(question_en):
+    """True if the question looks like a crop-cultivation question and shows no non-farming intent."""
+    return bool(_CULTIVATION.search(question_en)) and not _NON_FARM_INTENT.search(question_en)
+
+
+def pre_screen(question_en):
+    """First-pass refusal before any retrieval or generation. Returns a status or None."""
+    if is_injection(question_en) or route(question_en):
+        return "out_of_scope"
+    crop, unsupported = detect_crop(question_en)
+    if unsupported:
+        return "unsupported_crop"
+    if not farming_intent(question_en):
+        return "out_of_scope"
+    return None
+
+
+_STOP = set("""the a an is are was were be been do does did how what when where which who why much many should would could can
+i my me we you your for of in on at to from with and or it its this that these those there about after before during per use
+used apply applied applying need needed recommended recommendation amount quantity right best good correct ideal proper
+suggested give given tell please farmer crop crops field fields grown grow growing have has had get any some more most""".split())
+
+
+def _topic_words(question_en):
+    crop_words = {w for aliases in config.CROP_ALIASES.values() for a in aliases for w in a.split()}
+    words = re.findall(r"[a-z]{3,}", question_en.lower())
+    return [w for w in words if w not in _STOP and w not in crop_words and w.rstrip("s") not in crop_words]
+
+
+MIN_TOPIC_COVERAGE = 0.2   # last-resort net: only near-zero overlap is refused, because answers paraphrase
+MIN_ANSWER_OVERLAP = 0.2   # likewise; applied only to answers of 8 or more content words
+
+
+def topic_coverage(question_en, passages_text):
+    """Fraction of the question's topic words (prefix-matched) that appear in the retrieved passages.
+
+    Returns 1.0 if the question has no topic words. 'How do I cook rice?' has the topic word 'cook',
+    which the rice passages do not contain, so coverage is 0.
+    """
+    topics = _topic_words(question_en)
+    if not topics:
+        return 1.0
+    text = " " + re.sub(r"[^a-z0-9]+", " ", passages_text.lower())
+    return sum(1 for w in topics if (" " + w[:5]) in text) / len(topics)
+
+
+def answer_overlap(answer, passages_text):
+    """Fraction of the answer's content words that also occur in the passages (detects off-script output)."""
+    words = [w for w in re.findall(r"[a-z]{4,}", answer.lower()) if w not in _STOP]
+    if len(words) < 8:  # short answers such as 'Answer: 20 kg/ha' carry too little text to judge
+        return 1.0
+    text = " " + re.sub(r"[^a-z0-9]+", " ", passages_text.lower())
+    return sum(1 for w in words if (" " + w[:5]) in text) / len(words)
+
+
 def detect_crop(question_en):
     """Return (crop or None, unsupported: bool). Supported crops win over unsupported mentions."""
     t = question_en.lower()
     if _has_term(question_en, config.UNSUPPORTED_OVERRIDE):
         return None, True
     for crop, aliases in config.CROP_ALIASES.items():
-        if any(re.search(rf"\b{re.escape(a)}\b", t) for a in aliases):
+        if any(re.search(rf"\b{re.escape(a)}s?\b", t) for a in aliases):  # plural-tolerant: peanuts, millets
             return crop, False
     if _has_term(question_en, config.OUT_OF_CORPUS_CROPS):
         return None, True
@@ -38,10 +128,11 @@ def _tokens(text):
     return set(re.findall(r"[a-z0-9]+", text.lower()))
 
 
-def answer_failed(raw, question_en):
-    """Return 'too_short', 'echo', 'declined' or None. Catches answers that give no usable content.
+def answer_failed(raw, question_en, context=""):
+    """Return 'too_short', 'echo', 'declined', 'ungrounded' or None. Catches answers with no usable content.
 
-    'echo' = the model repeated the question; 'declined' = it said the passage lacks the answer.
+    'echo' = the model repeated the question; 'declined' = it said the passage lacks the answer;
+    'ungrounded' = a long answer sharing almost no words with the retrieved passages (off-script output).
     """
     words = raw.split()
     if len(words) < 4 and not any(ch.isdigit() for ch in raw):  # '20 kg/ha' is a complete answer
@@ -51,6 +142,8 @@ def answer_failed(raw, question_en):
         return "echo"
     if _DECLINED.search(raw):
         return "declined"
+    if context and answer_overlap(raw, context) < MIN_ANSWER_OVERLAP:
+        return "ungrounded"
     return None
 
 

@@ -41,11 +41,9 @@ def quick_refusal(question, lang):
     """
     if lang != "en":
         return None
-    if rules.route(question):
-        status = "out_of_scope"
-    elif rules.detect_crop(question)[1]:
-        status = "unsupported_crop"
-    else:
+    question = rules.sanitize(question)
+    status = rules.pre_screen(question)
+    if not status:
         return None
     msg = config.MESSAGES[status]
     return {"status": status, "answer": msg, "answer_en": msg, "sources": [], "question_en": question,
@@ -58,7 +56,8 @@ def answer(question, lang="en", mode="rag"):
     s = load()
     tr, gen, ret = s["translator"], s["generator"], s["retriever"]
     t0 = time.time()
-    q_en = tr.to_en(question, lang)
+    question = rules.sanitize(question)  # strip prompt-format tokens, cap length
+    q_en = rules.sanitize(tr.to_en(question, lang))
     out = {"status": "", "answer": "", "answer_en": "", "sources": [], "question_en": q_en,
            "crop": None, "top_score": None, "raw_answer_en": None, "verifier_ok": None,
            "missing_numbers": [], "failed_reason": None, "numbers_preserved": True, "seconds": 0.0}
@@ -69,14 +68,9 @@ def answer(question, lang="en", mode="rag"):
         out["seconds"] = round(time.time() - t0, 1)
         return out
 
-    verdict = rules.route(q_en)
-    crop, unsupported = rules.detect_crop(q_en)
-    if verdict == "out_of_scope":
-        status = "out_of_scope"
-    elif unsupported:
-        status = "unsupported_crop"
-    else:
-        status = None
+    # Layered input checks: injection phrasing, pest/off-topic words, unsupported crops, and a cultivation-intent test
+    status = rules.pre_screen(q_en)
+    crop, _ = rules.detect_crop(q_en)
     if status:
         out["status"] = status
         out["answer"], out["answer_en"] = _refusal(status, lang, tr)
@@ -85,7 +79,9 @@ def answer(question, lang="en", mode="rag"):
 
     hits = ret.search(q_en, crop=crop)
     out["crop"], out["top_score"] = crop, round(hits[0][0], 3) if hits else None
-    if not hits or hits[0][0] < config.SCORE_THRESHOLD:
+    coverage = rules.topic_coverage(q_en, " ".join(c["text"] for _, c in hits)) if hits else 0.0
+    out["topic_coverage"] = round(coverage, 2)
+    if not hits or hits[0][0] < config.SCORE_THRESHOLD or coverage < rules.MIN_TOPIC_COVERAGE:
         out["status"] = "not_found"
         out["answer"], out["answer_en"] = _refusal("not_found", lang, tr)
         out["seconds"] = round(time.time() - t0, 1)
@@ -95,7 +91,7 @@ def answer(question, lang="en", mode="rag"):
     out["raw_answer_en"] = raw
     out["sources"] = [_source(sc, c) for sc, c in hits[:max(1, len(used))]]
     ok, missing = rules.verify_numbers(raw, " ".join(used))
-    fail = rules.answer_failed(raw, q_en)
+    fail = rules.answer_failed(raw, q_en, " ".join(used))
     out["verifier_ok"], out["missing_numbers"], out["failed_reason"] = ok, missing, fail
 
     if fail == "declined" and not any(ch.isdigit() for ch in raw):
