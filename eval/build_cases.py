@@ -33,7 +33,8 @@ EN = [
     ("D1", "Redgram", "fertilizer", "What fertilizer should be applied basally to rainfed redgram?", [r"12\.5\s*kg\s*N"], 127),
     ("D2", "Redgram", "irrigation", "At which stages should redgram be irrigated?", [r"bud initiation"], 128),
     ("D3", "Redgram", "season", "When should long duration redgram varieties be sown?", [r"July"], 128),
-    ("N1", "Groundnut", "seed_rate", "What is the seed rate for groundnut?", [r"120\s*kg"], 185),
+    # The guide gives 120 kg/ha (printed p185) and, in another section, 125 kg/ha (p190): both are accepted.
+    ("N1", "Groundnut", "seed_rate", "What is the seed rate for groundnut?", [r"12[05]\s*kg"], 185),
     ("N2", "Groundnut", "fertilizer", "How much gypsum should be applied to groundnut?", [r"400\s*kg"], 186),
 ]
 

@@ -5,7 +5,7 @@ import torch
 from IndicTransToolkit import IndicProcessor
 from transformers import AutoModelForSeq2SeqLM, AutoTokenizer
 
-from . import config
+from . import config, rules
 
 _SENT = re.compile(r"(?<=[.!?।])\s+")
 
@@ -56,6 +56,7 @@ class Translator:
         """Return (translation, numbers_preserved). Callers must show English if not preserved."""
         if lang == "en":
             return text, True
+        text = rules.normalize_ordinals(text)  # '1st week' is often written in words, not digits
         out = self._many("en_indic", _tighten(text), config.IT2_TAG["en"], config.IT2_TAG[lang])
         ok = digits(text) == digits(out) and "<ID" not in out and "ID1" not in out.replace(" ", "")
         return out, ok

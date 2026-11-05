@@ -32,7 +32,7 @@ _UNITS = r"(?:kg|g|mg|ml|litres?|liters?|l|tonnes?|t|q|quintals?|%|per\s*cent|pe
 _NUM = r"\d+(?:,\d{3})*(?:\.\d+)?"
 _QTY = re.compile(rf"(?<![\w.])({_NUM})(?:\s*(?:-|–|to)\s*({_NUM}))?\s*(?:{_UNITS})(?![A-Za-z])", re.I)
 _RATIO = re.compile(r"(\d+(?:\.\d+)?)\s*:\s*(\d+(?:\.\d+)?)(?:\s*:\s*(\d+(?:\.\d+)?))?")
-_ANYNUM = re.compile(rf"(?<![\w.])({_NUM})(?![\w])")
+_ANYNUM = re.compile(rf"(?<![\w.])({_NUM})(?!\d)")  # letters may follow: tables glue units ('20kgperhectare')
 
 
 def _norm(n):
@@ -42,8 +42,44 @@ def _norm(n):
     return n
 
 
+# Unit families: a number only counts as supported if the context uses it with a compatible unit.
+_FAMILY = {}
+for _fam, _us in {"mass": "kg g mg t tonne tonnes q quintal quintals", "volume": "ml l litre litres liter liters",
+                  "pct": "% percent per cent", "length": "cm mm m", "time": "day days week weeks hr hrs hour hours das dat dap",
+                  "area": "ha hectare hectares acre acres cent cents"}.items():
+    for _u in _us.split():
+        _FAMILY[_u] = _fam
+_UNIT_ALT = "|".join(sorted((re.escape(u) for u in _FAMILY), key=len, reverse=True))
+# After a number: multi-letter units may be glued to following text ('20kgperhectare'); single letters may not.
+_AFTER = re.compile(rf"\s*(?:({_UNIT_ALT})(?![a-z])|((?:kg|mg|ml|cm|mm|ha|das|dat|dap)))", re.I)
+
+
+def _family_after(text, end):
+    m = _AFTER.match(text, end)
+    if not m:
+        return None  # bare number, e.g. a table cell
+    return _FAMILY.get((m.group(1) or m.group(2)).lower())
+
+
 def _numbers(text):
     return {_norm(m.group(1)) for m in _ANYNUM.finditer(text)}
+
+
+def _supported(text):
+    """Set of (number, family) pairs in text; family is None for numbers with no unit."""
+    return {(_norm(m.group(1)), _family_after(text, m.end())) for m in _ANYNUM.finditer(text)}
+
+
+_ORD = {1: "first", 2: "second", 3: "third", 4: "fourth", 5: "fifth", 6: "sixth", 7: "seventh",
+        8: "eighth", 9: "ninth", 10: "tenth", 11: "eleventh", 12: "twelfth"}
+
+
+def normalize_ordinals(text):
+    """'1st week' -> 'first week' so translators that write ordinals in words keep the meaning."""
+    def sub(m):
+        n = int(m.group(1))
+        return _ORD.get(n, m.group(0))
+    return re.sub(r"\b(\d{1,2})(?:st|nd|rd|th)\b", sub, text)
 
 
 def _ratios(text):
@@ -56,15 +92,17 @@ def _ratios(text):
 def verify_numbers(answer, context):
     """Every quantity-with-unit and every ratio in the answer must appear in the context.
 
-    Unit variants (kg/ha, kg per hectare) are handled by matching on the number, so they
-    cannot cause false alarms. Returns (ok, list_of_missing_items).
+    A number must appear in the context with a compatible unit family (so '125 kg' is not
+    supported by '125 ml'), or with no unit at all (table cells). Unit spellings such as
+    kg/ha and kg per hectare share a family. Returns (ok, list_of_missing_items).
     """
-    ctx_nums = _numbers(context)
+    ctx_sup = _supported(context)
     ctx_ratios = _ratios(context)
     missing = []
     for m in _QTY.finditer(answer):
+        fam = _family_after(answer, m.start(1) + len(m.group(1)) if not m.group(2) else m.start(2) + len(m.group(2)))
         for g in (m.group(1), m.group(2)):
-            if g and _norm(g) not in ctx_nums:
+            if g and (_norm(g), fam) not in ctx_sup and (_norm(g), None) not in ctx_sup:
                 missing.append(m.group(0).strip())
                 break
     for r in _ratios(answer):

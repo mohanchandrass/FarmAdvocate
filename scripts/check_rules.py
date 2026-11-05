@@ -25,6 +25,12 @@ checks = [
     ("verify wrong ratio", rules.verify_numbers("Use NPK 120:60:60", CTX)[0], False),
     ("verify thousands", rules.verify_numbers("Use 1000 g per ha", CTX)[0], True),
     ("verify range", rules.verify_numbers("Seed rate 20-30 kg", CTX)[0], False),
+    ("verify same number wrong unit (125 kg vs 125 ml)", rules.verify_numbers("Seed rate is 125 kg/ha", "Treat seeds with 125 ml of Rhizobium. Use 120 kg/ha of kernels.")[0], False),
+    ("verify % vs days", rules.verify_numbers("an increase of 15%", "Sow after 15 days. Use 120 kg/ha.")[0], False),
+    ("verify glued unit in context", rules.verify_numbers("Seed rate is 20 kg per hectare", "Seedrate | 20kgperhectare")[0], True),
+    ("verify table cell without unit", rules.verify_numbers("Apply 175 kg N per hectare", "Hybrid rice | 175 | 60 | 60")[0], True),
+    ("verify cm vs kg", rules.verify_numbers("Keep 2.5 cm of water", "Apply 2.5 kg of urea")[0], False),
+    ("ordinals", rules.normalize_ordinals("15th October to 1st week of November, 40th day"), "15th October to first week of November, 40th day"),
     ("verify bare numbers ignored", rules.verify_numbers("1. First step. Step 2 is next.", CTX)[0], True),
 ]
 bad = [c for c in checks if c[1] != c[2]]
