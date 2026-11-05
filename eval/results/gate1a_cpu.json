@@ -1,0 +1,120 @@
+{
+ "mode": "pr",
+ "device": "cpu",
+ "torch": "2.8.0+cpu",
+ "transformers": "4.53.1",
+ "python": "3.12.3",
+ "user": "DaMCSS",
+ "stage": "passed",
+ "tests": {
+  "hin_Deva_to_en": [
+   {
+    "in": "धान की फसल में कितना यूरिया डालना चाहिए?",
+    "out": "How much urea should be added to the paddy crop?",
+    "s": 0.49
+   },
+   {
+    "in": "गेहूं की सिंचाई कब करनी चाहिए?",
+    "out": "When should wheat be irrigated?",
+    "s": 0.31
+   }
+  ],
+  "kan_Knda_to_en": [
+   {
+    "in": "ಭತ್ತದ ಬೆಳೆಗೆ ಎಷ್ಟು ಯೂರಿಯಾ ಹಾಕಬೇಕು?",
+    "out": "How much urea should be applied to the rice crop?",
+    "s": 0.46
+   },
+   {
+    "in": "ರಾಗಿ ಬೆಳೆಗೆ ಎಷ್ಟು ಬೀಜ ಬೇಕು?",
+    "out": "How much seed is required for the millet crop?",
+    "s": 0.45
+   }
+  ],
+  "en_to_hin_Deva_roundtrip": [
+   {
+    "in": "Apply 10 kg N/ha (22 kg urea) at the time of first puddling.",
+    "translated": "पहले गड्ढे के समय 10 कि. ग्रा. एन./हेक्टेयर (22 कि. ग्रा. युरिया) लगाएं।",
+    "back": "Apply 10 kg एन./हेक्टेयर (22 kg urea) at the time of first pit.",
+    "digits_kept_in_translation": true,
+    "digits_kept_round_trip": true,
+    "s": 2.92
+   },
+   {
+    "in": "Apply NPK @ 100 : 50 : 50 kg / ha as a basal dose.",
+    "translated": "एन. पी. के. @100:50:50 किग्रा/हेक्टेयर को मूल खुराक के रूप में लागू करें।",
+    "back": "Apply NPK @ 100:50:50 kg / ha as the original dose.",
+    "digits_kept_in_translation": true,
+    "digits_kept_round_trip": true,
+    "s": 2.28
+   },
+   {
+    "in": "Maintain 2.5 cm depth of water after transplanting.",
+    "translated": "प्रत्यारोपण के बाद पानी की 2.5 सेमी गहराई बनाए रखें।",
+    "back": "Maintain a depth of 2. 5 cm of water after transplantation.",
+    "digits_kept_in_translation": true,
+    "digits_kept_round_trip": true,
+    "s": 1.25
+   },
+   {
+    "in": "Use a seed rate of 60 kg for short duration varieties and 20 kg for hybrids.",
+    "translated": "अल्पकालिक किस्मों के लिए 60 कि. ग्रा. और संकर के लिए 20 कि. ग्रा. के बीज दर का उपयोग करें।",
+    "back": "Use a seed rate of 60 kg for short-lived varieties and 20 kg for hybrids.",
+    "digits_kept_in_translation": true,
+    "digits_kept_round_trip": true,
+    "s": 101.9
+   }
+  ],
+  "en_to_kan_Knda_roundtrip": [
+   {
+    "in": "Apply 10 kg N/ha (22 kg urea) at the time of first puddling.",
+    "translated": "ಮೊದಲ ಪುಡ್ಡಿಂಗ್ ಸಮಯದಲ್ಲಿ 10 ಕೆ. ಜಿ. ಎನ್/ಹೆಕ್ಟೇರ್ (22 ಕೆ. ಜಿ. ಯುರಿಯಾ) ಅನ್ನು ಅನ್ವಯಿಸಿ.",
+    "back": "Apply 10 kgn / ha (22 kg urea) during the first pudding.",
+    "digits_kept_in_translation": true,
+    "digits_kept_round_trip": true,
+    "s": 2.17
+   },
+   {
+    "in": "Apply NPK @ 100 : 50 : 50 kg / ha as a basal dose.",
+    "translated": "ಎನ್. ಪಿ. ಕೆ. @<ಐ. ಡಿ. 1> ಕೆ. ಜಿ/ಹೆಕ್ಟೇರ್ ಅನ್ನು ಬೇಸಲ್ ಡೋಸು ಆಗಿ ಅನ್ವಯಿಸಿ.",
+    "back": "Apply NPK @ < ID1 > kg / ha as a basal dose.",
+    "digits_kept_in_translation": false,
+    "digits_kept_round_trip": false,
+    "s": 1.74
+   },
+   {
+    "in": "Maintain 2.5 cm depth of water after transplanting.",
+    "translated": "ನಾಟಿ ಮಾಡಿದ ನಂತರ 2.5 ಸೆಂಟಿಮೀಟರ್ ಆಳದ ನೀರನ್ನು ಕಾಪಾಡಿಕೊಳ್ಳಿ.",
+    "back": "After planting, maintain a depth of 2.5 cm.",
+    "digits_kept_in_translation": true,
+    "digits_kept_round_trip": true,
+    "s": 0.94
+   },
+   {
+    "in": "Use a seed rate of 60 kg for short duration varieties and 20 kg for hybrids.",
+    "translated": "ಅಲ್ಪಾವಧಿಯ ತಳಿಗಳಿಗೆ 60 ಕೆ. ಜಿ. ಮತ್ತು ಮಿಶ್ರತಳಿಗಳಿಗೆ 20 ಕೆ. ಜಿ. ಬೀಜದ ದರವನ್ನು ಬಳಸಿ.",
+    "back": "Use a seed rate of 60 kg for short-lived varieties and 20 kg for hybrids.",
+    "digits_kept_in_translation": true,
+    "digits_kept_round_trip": true,
+    "s": 1.74
+   }
+  ],
+  "repeat_20": {
+   "ok": true,
+   "distinct_outputs": 1,
+   "total_s": 25.9
+  }
+ },
+ "pr_commits": {
+  "en_indic": {
+   "main": "2cfd0a20057756d756bf3e53528f492afc52f91a",
+   "pr": "bf4b89ee717b362d6fa1b9373778f94a99109568"
+  },
+  "indic_en": {
+   "main": "d66a2122ad6d28184f3dc3797b652bd80ae3f65f",
+   "pr": "af1fe3d7d04e6327f9ae186b48a75cd6c0450aa8"
+  }
+ },
+ "load_en_indic_s": 161.9,
+ "load_indic_en_s": 82.1
+}

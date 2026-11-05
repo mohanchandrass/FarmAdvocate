@@ -1,0 +1,398 @@
+{
+ "dev": [
+  {
+   "id": "dev1",
+   "pred": "retrieved",
+   "score": 0.731,
+   "hit": true,
+   "crop": "Rice"
+  },
+  {
+   "id": "dev2",
+   "pred": "retrieved",
+   "score": 0.8,
+   "hit": true,
+   "crop": "Ragi"
+  },
+  {
+   "id": "dev3",
+   "pred": "retrieved",
+   "score": 0.796,
+   "hit": true,
+   "crop": "Wheat"
+  },
+  {
+   "id": "dev4",
+   "pred": "retrieved",
+   "score": 0.83,
+   "hit": true,
+   "crop": "Groundnut"
+  },
+  {
+   "id": "dev5",
+   "pred": "retrieved",
+   "score": 0.64,
+   "hit": null,
+   "crop": null
+  },
+  {
+   "id": "dev6",
+   "pred": "out_of_scope",
+   "score": null,
+   "hit": null,
+   "crop": null
+  }
+ ],
+ "test": [
+  {
+   "id": "en-R1",
+   "pred": "retrieved",
+   "score": 0.792,
+   "hit": false,
+   "crop": "Rice"
+  },
+  {
+   "id": "en-R2",
+   "pred": "retrieved",
+   "score": 0.804,
+   "hit": true,
+   "crop": "Rice"
+  },
+  {
+   "id": "en-R3",
+   "pred": "retrieved",
+   "score": 0.849,
+   "hit": true,
+   "crop": "Rice"
+  },
+  {
+   "id": "en-R4",
+   "pred": "retrieved",
+   "score": 0.754,
+   "hit": false,
+   "crop": "Rice"
+  },
+  {
+   "id": "en-R5",
+   "pred": "retrieved",
+   "score": 0.775,
+   "hit": true,
+   "crop": "Rice"
+  },
+  {
+   "id": "en-R6",
+   "pred": "retrieved",
+   "score": 0.775,
+   "hit": true,
+   "crop": "Rice"
+  },
+  {
+   "id": "en-G1",
+   "pred": "retrieved",
+   "score": 0.817,
+   "hit": true,
+   "crop": "Ragi"
+  },
+  {
+   "id": "en-G2",
+   "pred": "retrieved",
+   "score": 0.766,
+   "hit": true,
+   "crop": "Ragi"
+  },
+  {
+   "id": "en-G3",
+   "pred": "retrieved",
+   "score": 0.759,
+   "hit": true,
+   "crop": "Ragi"
+  },
+  {
+   "id": "en-G4",
+   "pred": "retrieved",
+   "score": 0.836,
+   "hit": true,
+   "crop": "Ragi"
+  },
+  {
+   "id": "en-M1",
+   "pred": "retrieved",
+   "score": 0.864,
+   "hit": true,
+   "crop": "Maize"
+  },
+  {
+   "id": "en-M2",
+   "pred": "retrieved",
+   "score": 0.84,
+   "hit": true,
+   "crop": "Maize"
+  },
+  {
+   "id": "en-M3",
+   "pred": "retrieved",
+   "score": 0.718,
+   "hit": false,
+   "crop": "Maize"
+  },
+  {
+   "id": "en-M4",
+   "pred": "retrieved",
+   "score": 0.791,
+   "hit": true,
+   "crop": "Maize"
+  },
+  {
+   "id": "en-M5",
+   "pred": "retrieved",
+   "score": 0.828,
+   "hit": true,
+   "crop": "Maize"
+  },
+  {
+   "id": "en-W1",
+   "pred": "retrieved",
+   "score": 0.821,
+   "hit": true,
+   "crop": "Wheat"
+  },
+  {
+   "id": "en-W2",
+   "pred": "retrieved",
+   "score": 0.781,
+   "hit": true,
+   "crop": "Wheat"
+  },
+  {
+   "id": "en-W3",
+   "pred": "retrieved",
+   "score": 0.769,
+   "hit": true,
+   "crop": "Wheat"
+  },
+  {
+   "id": "en-W4",
+   "pred": "retrieved",
+   "score": 0.895,
+   "hit": true,
+   "crop": "Wheat"
+  },
+  {
+   "id": "en-D1",
+   "pred": "retrieved",
+   "score": 0.839,
+   "hit": true,
+   "crop": "Redgram"
+  },
+  {
+   "id": "en-D2",
+   "pred": "retrieved",
+   "score": 0.788,
+   "hit": true,
+   "crop": "Redgram"
+  },
+  {
+   "id": "en-D3",
+   "pred": "retrieved",
+   "score": 0.794,
+   "hit": true,
+   "crop": "Redgram"
+  },
+  {
+   "id": "en-N1",
+   "pred": "retrieved",
+   "score": 0.821,
+   "hit": true,
+   "crop": "Groundnut"
+  },
+  {
+   "id": "en-N2",
+   "pred": "retrieved",
+   "score": 0.868,
+   "hit": true,
+   "crop": "Groundnut"
+  },
+  {
+   "id": "hi-R1",
+   "pred": "retrieved",
+   "score": 0.792,
+   "hit": false,
+   "crop": "Rice"
+  },
+  {
+   "id": "hi-R3",
+   "pred": "retrieved",
+   "score": 0.849,
+   "hit": true,
+   "crop": "Rice"
+  },
+  {
+   "id": "hi-R4",
+   "pred": "retrieved",
+   "score": 0.754,
+   "hit": false,
+   "crop": "Rice"
+  },
+  {
+   "id": "hi-G2",
+   "pred": "retrieved",
+   "score": 0.766,
+   "hit": true,
+   "crop": "Ragi"
+  },
+  {
+   "id": "hi-M3",
+   "pred": "retrieved",
+   "score": 0.718,
+   "hit": false,
+   "crop": "Maize"
+  },
+  {
+   "id": "hi-W1",
+   "pred": "retrieved",
+   "score": 0.821,
+   "hit": true,
+   "crop": "Wheat"
+  },
+  {
+   "id": "hi-D1",
+   "pred": "retrieved",
+   "score": 0.839,
+   "hit": true,
+   "crop": "Redgram"
+  },
+  {
+   "id": "hi-N2",
+   "pred": "retrieved",
+   "score": 0.868,
+   "hit": true,
+   "crop": "Groundnut"
+  },
+  {
+   "id": "kn-R2",
+   "pred": "retrieved",
+   "score": 0.804,
+   "hit": true,
+   "crop": "Rice"
+  },
+  {
+   "id": "kn-R5",
+   "pred": "retrieved",
+   "score": 0.775,
+   "hit": true,
+   "crop": "Rice"
+  },
+  {
+   "id": "kn-G1",
+   "pred": "retrieved",
+   "score": 0.817,
+   "hit": true,
+   "crop": "Ragi"
+  },
+  {
+   "id": "kn-M1",
+   "pred": "retrieved",
+   "score": 0.864,
+   "hit": true,
+   "crop": "Maize"
+  },
+  {
+   "id": "kn-W2",
+   "pred": "retrieved",
+   "score": 0.781,
+   "hit": true,
+   "crop": "Wheat"
+  },
+  {
+   "id": "kn-W4",
+   "pred": "retrieved",
+   "score": 0.895,
+   "hit": true,
+   "crop": "Wheat"
+  },
+  {
+   "id": "kn-D2",
+   "pred": "retrieved",
+   "score": 0.788,
+   "hit": true,
+   "crop": "Redgram"
+  },
+  {
+   "id": "kn-N1",
+   "pred": "retrieved",
+   "score": 0.821,
+   "hit": true,
+   "crop": "Groundnut"
+  },
+  {
+   "id": "en-X1",
+   "pred": "out_of_scope",
+   "score": null,
+   "hit": null,
+   "crop": null
+  },
+  {
+   "id": "en-X2",
+   "pred": "out_of_scope",
+   "score": null,
+   "hit": null,
+   "crop": null
+  },
+  {
+   "id": "en-X3",
+   "pred": "unsupported_crop",
+   "score": null,
+   "hit": null,
+   "crop": null
+  },
+  {
+   "id": "en-X4",
+   "pred": "unsupported_crop",
+   "score": null,
+   "hit": null,
+   "crop": null
+  },
+  {
+   "id": "en-X5",
+   "pred": "out_of_scope",
+   "score": null,
+   "hit": null,
+   "crop": null
+  },
+  {
+   "id": "hi-X6",
+   "pred": "out_of_scope",
+   "score": null,
+   "hit": null,
+   "crop": null
+  },
+  {
+   "id": "hi-X7",
+   "pred": "unsupported_crop",
+   "score": null,
+   "hit": null,
+   "crop": null
+  },
+  {
+   "id": "hi-X8",
+   "pred": "out_of_scope",
+   "score": null,
+   "hit": null,
+   "crop": null
+  },
+  {
+   "id": "kn-X9",
+   "pred": "out_of_scope",
+   "score": null,
+   "hit": null,
+   "crop": null
+  },
+  {
+   "id": "kn-X10",
+   "pred": "unsupported_crop",
+   "score": null,
+   "hit": null,
+   "crop": null
+  }
+ ]
+}

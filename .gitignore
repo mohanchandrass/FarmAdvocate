@@ -1,0 +1,10 @@
+.venv/
+__pycache__/
+*.pyc
+.env
+data/raw/
+*.pdf
+*.png
+*.jpg
+*.mp4
+.ipynb_checkpoints/
