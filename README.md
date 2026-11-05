@@ -33,6 +33,7 @@ Kendra (KVK).
 | Three languages | Ask and read answers in English, Hindi or Kannada; the English answer is always shown alongside |
 | Cited answers | Every answer lists the crop, section and printed page of the passages it used |
 | Safety checks | Refuses pest and off-topic questions and unsupported crops; checks that quantities in the answer appear in the source; withholds translations whose numbers changed |
+| Instant examples | The built-in example questions and the 50 evaluation questions are answered from saved outputs of this system, with no GPU wait or quota use; the page labels them "Saved answer". Any new question runs the models live |
 | API included | The same app exposes a `/ask` endpoint for programmatic use |
 | Free to host | Runs on a Hugging Face ZeroGPU Space; no server to manage |
 
@@ -68,7 +69,8 @@ Each part below is small and does one job. File names are relative to the reposi
 
 | Component | What it is | Why it is there | Key details |
 |---|---|---|---|
-| **Frontend and API** (`app.py`) | A Gradio app: question box, language picker, answer panel, status badge and a collapsible sources panel | The user interface the brief asks for. The same app exposes `/ask` as an API, and a hidden `/closed_book` endpoint used only by the evaluation | Runs on a ZeroGPU Space; the pipeline call is wrapped so a GPU is attached only while a query runs |
+| **Frontend and API** (`app.py`) | A Gradio app: question box, language picker, answer panel, status badge and a collapsible sources panel | The user interface the brief asks for. The same app exposes `/ask` as an API, plus hidden `/ask_live` and `/closed_book` endpoints used only by the evaluation | Runs on a ZeroGPU Space; a GPU is attached only while a model query runs. English refusals and saved example answers use no GPU |
+| **Saved answers** (`farmadvocate/cache.py`, `data/example_cache.json`) | The system's own outputs for the 50 evaluation questions, built by `scripts/build_example_cache.py` | The free GPU quota is tiny, so common demo questions should not depend on it | Labelled "Saved answer" in the UI; the evaluation calls `/ask_live`, which never reads them |
 | **Translator** (`farmadvocate/translate.py`) | Two AI4Bharat IndicTrans2 models: Indic to English and English to Indic (Hindi `hin_Deva`, Kannada `kan_Knda`) | AgriParam understands English and Hindi but the guide is English and Kannada is unsupported, so everything is answered in English and translated at the edges | Translates one sentence at a time; spells out ratios (`100:50:50` becomes "100, 50 and 50") because the Kannada model dropped them; converts "1st week" to words; returns a flag if any number changed |
 | **Scope router** (`farmadvocate/rules.py`, word lists in `config.py`) | Keyword rules on the English question | Stops the app answering what it should not: pest and disease advice, prices, weather, unrelated topics | Whole-word matching, so "tur" does not match "turn". Decides refusal before any retrieval or generation |
 | **Crop detector** (`rules.py`) | Matches crop names and aliases (paddy, finger millet, pigeon pea, and so on) | Restricts retrieval to the right crop, because every crop's chapter has similar headings. Also refuses crops the guide does not index | Treats "millet" as ragi (translators often output it) but refuses pearl millet and sorghum explicitly |
@@ -117,8 +119,11 @@ Most remaining errors are faithful readings of the wrong passage or an adjacent 
 catch. See the failure analysis.
 
 > **Honest notes.** Test questions, gold facts and labels were written by Claude (an AI), and no human reviewed them;
-> Hindi and Kannada samples are small (8 each). Recommendations are for Tamil Nadu and six crops. The free GPU quota
-> allows only a few queries per visitor per day, and the first load after idle can take minutes.
+> Hindi and Kannada samples are small (8 each). Recommendations are for Tamil Nadu and six crops. New questions need
+> GPU time on the free tier: about 2 minutes a day for logged-out visitors (shared by everyone on the same network) and
+> 5 minutes for signed-in Hugging Face users, resetting 24 hours after first use. If you see "ZeroGPU quota exceeded",
+> sign in to Hugging Face or try one of the built-in examples, which do not need the GPU. The first load after the app
+> has been idle can take several minutes.
 
 ## Project layout
 ```

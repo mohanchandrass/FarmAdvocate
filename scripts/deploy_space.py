@@ -35,6 +35,6 @@ with tempfile.TemporaryDirectory() as tmp:
     (Path(tmp) / "README.md").write_text(HEADER + (ROOT / "README.md").read_text(encoding="utf-8"), encoding="utf-8")
     api.upload_file(path_or_fileobj=str(Path(tmp) / "README.md"), path_in_repo="README.md", repo_id=REPO, repo_type="space")
 api.upload_folder(folder_path=str(ROOT), repo_id=REPO, repo_type="space",
-                  allow_patterns=["app.py", "requirements.txt", "farmadvocate/*.py", "data/chunks.jsonl", "data/sources.md"],
+                  allow_patterns=["app.py", "requirements.txt", "farmadvocate/*.py", "data/chunks.jsonl", "data/example_cache.json", "data/sources.md"],
                   commit_message="Deploy FarmAdvocate")
 print("deployed:", f"https://huggingface.co/spaces/{REPO}")

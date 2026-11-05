@@ -1,7 +1,7 @@
 """FarmAdvocate: Gradio app (UI and /ask API) for a Hugging Face ZeroGPU Space."""
 try:  # must be imported before torch on ZeroGPU
     import spaces
-    gpu = spaces.GPU(duration=60)
+    gpu = spaces.GPU(duration=30)  # a query takes a few seconds; a short request leaves quota usable and queues faster
 except Exception:  # running locally or on Colab
     def gpu(fn):
         return fn
@@ -10,6 +10,7 @@ import html
 
 import gradio as gr
 
+from farmadvocate import cache as saved_answers
 from farmadvocate import config, pipeline
 
 pipeline.load()  # models are placed on the GPU at module level, as ZeroGPU requires
@@ -75,20 +76,38 @@ def closed_book(question, lang_label):
     return _run_closed_book(question.strip(), config.LANGS[lang_label])
 
 
-def ask(question, lang_label):
+SAVED = saved_answers.load()  # answers saved from the evaluation run for the example and test questions
+
+
+def _answer(question, lang_label, use_saved):
     if not question or not question.strip():
         return "", "", '<div class="badge warn">Please type a question.</div>', "", {}
-    code = config.LANGS[lang_label]
-    out = pipeline.quick_refusal(question.strip(), code) or _run(question.strip(), code)  # refusals need no GPU
+    code, q = config.LANGS[lang_label], question.strip()
+    saved = SAVED.get(saved_answers.cache_key(q, code)) if use_saved else None
+    if saved:  # no GPU needed
+        out = dict(saved, cached=True)
+    else:
+        out = pipeline.quick_refusal(q, code) or _run(q, code)  # refusals need no GPU either
     text, kind = BADGES.get(out["status"], (out["status"], "warn"))
     meta = f"Understood as: “{html.escape(out['question_en'])}”"
     if out.get("crop"):
         meta += f" · Crop: {html.escape(out['crop'])}"
+    if out.get("cached"):
+        meta += " · Saved answer from the evaluation run (no GPU used)"
     src = "\n\n".join(
-        f"**{s['crop']} · {s['system'] or 'General'} · {s['section']} · page {s['page']}** (similarity {s['score']})\n\n> {s['text']}"
+        f"**{s['crop']} · {s.get('system') or 'General'} · {s['section']} · page {s['page']}** (similarity {s['score']})\n\n> {s['text']}"
         for s in out["sources"]) or "_No sources used for this reply._"
     badge_html = f'<div class="badge {kind}">{text}<div class="meta">{meta}</div></div>'
     return out["answer"], out["answer_en"], badge_html, src, out
+
+
+def ask(question, lang_label):
+    return _answer(question, lang_label, use_saved=True)
+
+
+def ask_live(question, lang_label):
+    """Always runs the full pipeline (used by the evaluation, which must never read saved answers)."""
+    return _answer(question, lang_label, use_saved=False)
 
 
 EXAMPLES = [
@@ -121,8 +140,9 @@ with gr.Blocks(title="FarmAdvocate", theme=theme, css=CSS) as demo:
     gr.Markdown(FOOTER)
     btn.click(ask, [question, lang], [answer, answer_en, badge, sources, raw], api_name="ask")
     question.submit(ask, [question, lang], [answer, answer_en, badge, sources, raw], api_name=False)
-    hidden = gr.Button(visible=False)  # exposes the baseline endpoint for evaluation only
+    hidden = gr.Button(visible=False)  # endpoints used only by the evaluation
     hidden.click(closed_book, [question, lang], [raw], api_name="closed_book")
+    hidden.click(ask_live, [question, lang], [answer, answer_en, badge, sources, raw], api_name="ask_live")
 
 if __name__ == "__main__":
     demo.queue().launch()
