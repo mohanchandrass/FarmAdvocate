@@ -34,6 +34,11 @@ checks = [
     ("verify table cell without unit", rules.verify_numbers("Apply 175 kg N per hectare", "Hybrid rice | 175 | 60 | 60")[0], True),
     ("verify cm vs kg", rules.verify_numbers("Keep 2.5 cm of water", "Apply 2.5 kg of urea")[0], False),
     ("ordinals", rules.normalize_ordinals("15th October to 1st week of November, 40th day"), "15th October to first week of November, 40th day"),
+    ("failed: echo", rules.answer_failed("When should rainfed ragi be sown in Tamil Nadu?", "When should rainfed ragi be sown in Tamil Nadu?"), "echo"),
+    ("failed: declined", rules.answer_failed("The passage does not provide specific quantities.", "How much gypsum?"), "declined"),
+    ("failed: short with number is fine", rules.answer_failed("Answer: 20 kg/ha", "Seed rate for maize CO 1?"), None),
+    ("failed: ok answer", rules.answer_failed("The seed rate for groundnut is 125 kg/ha of kernels.", "What is the seed rate for groundnut?"), None),
+    ("failed: too short no number", rules.answer_failed("Yes.", "How much urea?"), "too_short"),
     ("verify bare numbers ignored", rules.verify_numbers("1. First step. Step 2 is next.", CTX)[0], True),
 ]
 bad = [c for c in checks if c[1] != c[2]]

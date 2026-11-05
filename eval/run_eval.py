@@ -45,16 +45,19 @@ def retrieval():
     def probe(c):
         q = c["question_en"]
         if rules.route(q):
-            return {"pred": "out_of_scope", "score": None, "hit": None, "crop": None}
+            return {"pred": "out_of_scope", "score": None, "hit": None, "content_hit": None, "crop": None}
         crop, unsup = rules.detect_crop(q)
         if unsup:
-            return {"pred": "unsupported_crop", "score": None, "hit": None, "crop": None}
+            return {"pred": "unsupported_crop", "score": None, "hit": None, "content_hit": None, "crop": None}
         hits = ret.search(q, crop=crop)
         score = hits[0][0] if hits else 0.0
-        hit = None
+        hit = chit = None
         if c["gold_page"] is not None:
             hit = any(h[1]["crop"] == c["crop"] and h[1]["page_start"] <= c["gold_page"] <= h[1]["page_end"] for h in hits)
-        return {"pred": "retrieved", "score": round(score, 3), "hit": hit, "crop": crop}
+            # content-based: any top-3 chunk of the right crop that contains every required fact
+            chit = any(h[1]["crop"] == c["crop"] and all(re.search(f, h[1]["text"], re.I) for f in c["required_facts"]) for h in hits)
+        return {"pred": "retrieved", "score": round(score, 3), "hit": hit, "content_hit": chit, "crop": crop,
+                "top3": [(h[1]["id"], h[1]["page_start"], round(h[0], 3)) for h in hits]}
 
     dev = [(c, probe(c)) for c in load_cases("dev_cases.jsonl")]
     pos = [p["score"] for c, p in dev if not c["should_refuse"] and p["score"] is not None]
@@ -67,9 +70,10 @@ def retrieval():
     ans = [(c, p) for c, p in test if not c["should_refuse"]]
     neg_t = [(c, p) for c, p in test if c["should_refuse"]]
     hit = sum(1 for _, p in ans if p["hit"])
-    print(f"\nHit@3 (English meaning, answerable): {hit}/{len(ans)}")
+    chit = sum(1 for _, p in ans if p["content_hit"])
+    print(f"\nHit@3 by gold page: {hit}/{len(ans)} | by content (any top-3 chunk holds every gold fact): {chit}/{len(ans)}")
     for c, p in ans:
-        if not p["hit"]:
+        if not p["content_hit"]:
             print("  MISS", c["id"], p)
     print("min/median score among answerable:", min(p["score"] for _, p in ans), st.median(p["score"] for _, p in ans))
     print("refusal routing:", {c["id"]: p["pred"] for c, p in neg_t})

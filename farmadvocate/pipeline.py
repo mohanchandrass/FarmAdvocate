@@ -29,8 +29,8 @@ def _refusal(status, lang, tr):
 
 def _source(score, c):
     pages = c["page_start"] if c["page_start"] == c["page_end"] else f"{c['page_start']}-{c['page_end']}"
-    return {"crop": c["crop"], "section": c["section"], "page": pages, "score": round(score, 3),
-            "text": c["text"]}
+    return {"crop": c["crop"], "system": c.get("system", ""), "section": c["section"], "page": pages,
+            "score": round(score, 3), "text": c["text"]}
 
 
 def answer(question, lang="en", mode="rag"):
@@ -41,7 +41,7 @@ def answer(question, lang="en", mode="rag"):
     q_en = tr.to_en(question, lang)
     out = {"status": "", "answer": "", "answer_en": "", "sources": [], "question_en": q_en,
            "crop": None, "top_score": None, "raw_answer_en": None, "verifier_ok": None,
-           "missing_numbers": [], "numbers_preserved": True, "seconds": 0.0}
+           "missing_numbers": [], "failed_reason": None, "numbers_preserved": True, "seconds": 0.0}
 
     if mode == "closed_book":
         out.update(status="closed_book", raw_answer_en=gen.answer_closed_book(q_en))
@@ -75,9 +75,15 @@ def answer(question, lang="en", mode="rag"):
     out["raw_answer_en"] = raw
     out["sources"] = [_source(sc, c) for sc, c in hits[:max(1, len(used))]]
     ok, missing = rules.verify_numbers(raw, " ".join(used))
-    out["verifier_ok"], out["missing_numbers"] = ok, missing
+    fail = rules.answer_failed(raw, q_en)
+    out["verifier_ok"], out["missing_numbers"], out["failed_reason"] = ok, missing, fail
 
-    if ok:
+    if fail == "declined" and not any(ch.isdigit() for ch in raw):
+        out["status"], out["answer_en"] = "not_found", config.MESSAGES["not_found"]
+        out["answer"], _ = tr.from_en(out["answer_en"], lang)
+        out["seconds"] = round(time.time() - t0, 1)
+        return out
+    if ok and not fail:
         out["status"], out["answer_en"] = "verified", raw
     else:
         top = hits[0][1]["text"]

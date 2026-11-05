@@ -29,6 +29,31 @@ def detect_crop(question_en):
     return None, False
 
 
+# ---------------------------------------------------------------- failed-answer detector
+_DECLINED = re.compile(r"does not (?:provide|contain|specify|mention|include)|do not know|don't know|"
+                       r"cannot (?:find|determine)|no information|not (?:mentioned|specified) in the", re.I)
+
+
+def _tokens(text):
+    return set(re.findall(r"[a-z0-9]+", text.lower()))
+
+
+def answer_failed(raw, question_en):
+    """Return 'too_short', 'echo', 'declined' or None. Catches answers that give no usable content.
+
+    'echo' = the model repeated the question; 'declined' = it said the passage lacks the answer.
+    """
+    words = raw.split()
+    if len(words) < 4 and not any(ch.isdigit() for ch in raw):  # '20 kg/ha' is a complete answer
+        return "too_short"
+    a, q = _tokens(raw), _tokens(question_en)
+    if a and q and len(a & q) / len(a | q) > 0.8:
+        return "echo"
+    if _DECLINED.search(raw):
+        return "declined"
+    return None
+
+
 # ---------------------------------------------------------------- numeric verifier
 _UNITS = r"(?:kg|g|mg|ml|litres?|liters?|l|tonnes?|t|q|quintals?|%|per\s*cent|percent|cm|mm|m|days?|weeks?|hrs?|hours?|ha|hectares?|acres?|cents?|dap|das|dat)"
 _NUM = r"\d+(?:,\d{3})*(?:\.\d+)?"
