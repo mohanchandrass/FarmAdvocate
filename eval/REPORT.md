@@ -8,6 +8,19 @@ via its public API. Generation is deterministic (greedy), so each number comes f
 > reviewed them or the labels**. Labels may share the system's blind spots. The raw outputs and every label with its
 > reason are in `eval/results/` so each judgment can be checked.
 
+## How the assignment's evaluation criteria are measured
+The brief for this option asks for **groundedness, factual correctness and domain QA**, and cautions that *dataset
+benchmarks are not substitutes for task-specific evaluation*. This evaluation is task-specific: every question was
+written from the project's own corpus (the TNAU guide), and it was not run on a public benchmark. AgriParam's
+published result on the BhashaBench-Krishi benchmark (self-reported 32.18% closed-book, noted in `docs/TRD.md`) is
+context only. The benchmark is gated and was not used.
+
+| Brief criterion | How it is measured here | Headline result |
+|---|---|---|
+| **Groundedness** | Each of the 39 generated answers is labelled supported, partial, unsupported or no answer against the passages the model was given; a numeric check also tests that every quantity appears in those passages | 31 supported (79%); the numeric check passed all 39 |
+| **Factual correctness** | Each answer is compared with the guide's value (gold facts, machine-verified against the gold page) and labelled fully correct, partial or incorrect; a regex check runs alongside as a partial safeguard (85% agreement with the labels) | AgriParam alone 3/24 fully correct (12%); with retrieval 14/24 (58%) |
+| **Domain QA** | Question answering over 40 in-domain questions across six crops, five topics (seed rate, fertilizer, irrigation, spacing, season) and three languages, plus 10 out-of-domain questions that must be refused | Hindi 4/8 and Kannada 5/8 fully correct; 10/10 out-of-domain refused; 90% of questions had a passage containing the answer |
+
 ## Test set
 | Group | Cases |
 |---|---|

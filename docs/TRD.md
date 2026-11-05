@@ -4,7 +4,9 @@
 **Author:** Mohan Chandra S S
 **Deadline:** 6 Nov 2026, 10:00 (CIE3 lab assessment, individual submission)
 **Repo:** https://github.com/mohanchandrass/FarmAdvocate (public, currently empty)
-**Status:** v5. Three reviews applied (Appendices A to C). All decisions made (section 12). No application code has been written.
+**Status:** Final. This document was written before implementation and has been kept as the design record; the system is
+built, deployed and evaluated. Appendix D lists where the build departed from this plan (for example, no Vercel frontend
+and no NLI scoring), and `eval/REPORT.md` holds the results.
 
 ---
 

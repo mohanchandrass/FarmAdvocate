@@ -172,6 +172,13 @@ Concepts: Domain LLM, document retrieval, RAG. Evaluation: groundedness, factual
 | **Quantitative testing and error analysis** | 50 cases; AgriParam alone vs RAG comparison; retrieval, groundedness, refusal and per-language metrics; categorised failures | [`eval/REPORT.md`](eval/REPORT.md), raw outputs in `eval/results/` |
 | **Demo, documentation and repository** | Animated demo, this README, design document, evaluation report, reproducible scripts | This page, [`docs/TRD.md`](docs/TRD.md) |
 
+### Pre-selection checks the brief asks for
+The brief says to confirm checkpoint availability, licensing, language coverage, GPU requirements and suitability
+before assigning a model. These were checked against primary sources and recorded in [TRD section 3](docs/TRD.md):
+AgriParam is public (not gated), Apache-2.0 per its card, 2.86B parameters, 2,048-token context, English and Hindi only,
+about 5.7 GB in bf16; IndicTrans2 distilled checkpoints are MIT and gated, covering all three project languages. Two
+compatibility problems were found and worked around (IndicTrans2 on newer `transformers`, and Kannada number loss).
+
 ### Models and data used
 * **BharatGen AgriParam**: [`bharatgenai/AgriParam`](https://huggingface.co/bharatgenai/AgriParam), Apache-2.0 per the model card
 * **AI4Bharat IndicTrans2**: [`ai4bharat/indictrans2-en-indic-dist-200M`](https://huggingface.co/ai4bharat/indictrans2-en-indic-dist-200M) and [`...indic-en-dist-200M`](https://huggingface.co/ai4bharat/indictrans2-indic-en-dist-200M), MIT
