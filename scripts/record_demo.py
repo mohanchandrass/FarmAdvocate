@@ -60,7 +60,9 @@ with sync_playwright() as p:
         shot(page, 500)
         page.get_by_role("button", name="Get advice").click()
         shot(page, 700)
-        page.wait_for_selector(".badge, .toast-wrap", timeout=120_000)
+        time.sleep(0.5)  # give the single loader time to appear
+        page.wait_for_selector(".loader-overlay", state="detached", timeout=120_000)  # finished when it is gone
+        page.wait_for_selector(".badge", timeout=30_000)
         time.sleep(0.8)
         if page.get_by_text(re.compile(r"exceeded your|quota exceeded", re.I)).count():
             raise SystemExit(f"Page shows an error (likely GPU quota) on: {q!r}. Nothing saved.")
