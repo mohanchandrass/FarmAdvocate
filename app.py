@@ -26,6 +26,16 @@ def _run(question, lang):
     return pipeline.answer(question, lang)
 
 
+@gpu
+def _run_closed_book(question, lang):
+    return pipeline.answer(question, lang, mode="closed_book")
+
+
+def closed_book(question, lang_label):
+    """Evaluation baseline (AgriParam alone, no retrieval). Not shown in the UI."""
+    return _run_closed_book(question.strip(), config.LANGS[lang_label])
+
+
 def ask(question, lang_label):
     if not question or not question.strip():
         return "", "", "Please type a question.", "", {}
@@ -64,6 +74,8 @@ with gr.Blocks(title="FarmAdvocate") as demo:
             raw = gr.JSON(label="API response", visible=False)
     gr.Markdown(f"_{config.NOTICE}_")
     btn.click(ask, [question, lang], [answer, answer_en, badge, sources, raw], api_name="ask")
+    hidden = gr.Button(visible=False)  # exposes the baseline endpoint for evaluation only
+    hidden.click(closed_book, [question, lang], [raw], api_name="closed_book")
 
 if __name__ == "__main__":
     demo.queue().launch()

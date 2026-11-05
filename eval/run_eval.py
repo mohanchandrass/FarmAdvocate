@@ -94,6 +94,33 @@ def full():
             print(name, c["id"], out["status"], out["seconds"], flush=True)
 
 
+# ------------------------------------------------------------------ space stage (evaluate the deployed app)
+def space():
+    """Run the evaluation against the deployed Space API. Resumable if the GPU quota runs out."""
+    from gradio_client import Client
+    from huggingface_hub import get_token
+    client = Client("DaMCSS/FarmAdvocate", token=get_token(), verbose=False)
+    label = {"en": "English", "hi": "हिन्दी (Hindi)", "kn": "ಕನ್ನಡ (Kannada)"}
+    cases = load_cases("test_cases.jsonl")
+    plans = (("rag.jsonl", "/ask", cases),
+             ("closed_book.jsonl", "/closed_book", [c for c in cases if c["lang"] == "en" and not c["should_refuse"]]))
+    for name, api, subset in plans:
+        path = RES / name
+        done = {r["id"] for r in read_jsonl(path)}
+        for c in subset:
+            if c["id"] in done:
+                continue
+            try:
+                res = client.predict(c["question"], label[c["lang"]], api_name=api)
+            except Exception as e:  # most likely the daily ZeroGPU quota
+                print("STOPPED at", name, c["id"], type(e).__name__, str(e)[:300], flush=True)
+                return
+            out = res[4] if isinstance(res, (list, tuple)) else res
+            append(path, {"id": c["id"], "mode": "rag" if api == "/ask" else "closed_book", **out})
+            print(name, c["id"], out["status"], out["seconds"], flush=True)
+    print("SPACE EVAL COMPLETE")
+
+
 # ------------------------------------------------------------------ metrics stage
 def pct(a, b):
     return f"{a}/{b} ({100 * a / b:.0f}%)" if b else "n/a"
@@ -151,4 +178,4 @@ def metrics():
 
 
 if __name__ == "__main__":
-    {"retrieval": retrieval, "full": full, "metrics": metrics}[sys.argv[1]]()
+    {"retrieval": retrieval, "full": full, "space": space, "metrics": metrics}[sys.argv[1]]()
