@@ -15,7 +15,6 @@ REPO = sys.argv[1] if len(sys.argv) > 1 else "DaMCSS/FarmAdvocate"
 ROOT = Path(__file__).resolve().parents[1]
 HEADER = """---
 title: FarmAdvocate
-emoji: 🌾
 colorFrom: green
 colorTo: yellow
 sdk: gradio
@@ -29,7 +28,8 @@ short_description: Farmer advisory assistant in English, Hindi and Kannada
 """
 
 api = HfApi()
-api.create_repo(REPO, repo_type="space", space_sdk="gradio", space_hardware="zero-a10g", exist_ok=True)
+if not api.repo_exists(REPO, repo_type="space"):  # create_repo is refused for existing repos on some accounts
+    api.create_repo(REPO, repo_type="space", space_sdk="gradio", space_hardware="zero-a10g")
 api.add_space_secret(REPO, "HF_TOKEN", get_token())  # IndicTrans2 is gated
 with tempfile.TemporaryDirectory() as tmp:
     (Path(tmp) / "README.md").write_text(HEADER + (ROOT / "README.md").read_text(encoding="utf-8"), encoding="utf-8")

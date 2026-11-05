@@ -1,7 +1,7 @@
 """FarmAdvocate: Gradio app (UI and /ask API) for a Hugging Face ZeroGPU Space."""
 try:  # must be imported before torch on ZeroGPU
     import spaces
-    gpu = spaces.GPU(duration=90)
+    gpu = spaces.GPU(duration=60)
 except Exception:  # running locally or on Colab
     def gpu(fn):
         return fn
@@ -15,11 +15,11 @@ from farmadvocate import config, pipeline
 pipeline.load()  # models are placed on the GPU at module level, as ZeroGPU requires
 
 BADGES = {
-    "verified": ("✅ Quantities found in the sources", "ok"),
-    "unverified": ("⚠️ Unverified: showing the source passage instead", "warn"),
-    "out_of_scope": ("🚫 Out of scope: please ask your local KVK", "stop"),
-    "unsupported_crop": ("🚫 Crop not covered by the sources", "stop"),
-    "not_found": ("❓ Not found in the sources", "warn"),
+    "verified": ("Quantities found in the sources", "ok"),
+    "unverified": ("Unverified: showing the source passage instead", "warn"),
+    "out_of_scope": ("Out of scope: please ask your local KVK", "stop"),
+    "unsupported_crop": ("Crop not covered by the sources", "stop"),
+    "not_found": ("Not found in the sources", "warn"),
 }
 
 CSS = """
@@ -40,7 +40,7 @@ CSS = """
 
 HERO = """
 <div id="hero">
-  <h1>🌾 FarmAdvocate</h1>
+  <h1>FarmAdvocate</h1>
   <p>Crop, irrigation and fertilizer advice in your language, answered only from a trusted agricultural guide.</p>
   <span class="pill">English</span><span class="pill">हिन्दी</span><span class="pill">ಕನ್ನಡ</span>
   <span class="pill">Cited sources</span><span class="pill">Refuses pest &amp; off-topic questions</span>
@@ -78,7 +78,8 @@ def closed_book(question, lang_label):
 def ask(question, lang_label):
     if not question or not question.strip():
         return "", "", '<div class="badge warn">Please type a question.</div>', "", {}
-    out = _run(question.strip(), config.LANGS[lang_label])
+    code = config.LANGS[lang_label]
+    out = pipeline.quick_refusal(question.strip(), code) or _run(question.strip(), code)  # refusals need no GPU
     text, kind = BADGES.get(out["status"], (out["status"], "warn"))
     meta = f"Understood as: “{html.escape(out['question_en'])}”"
     if out.get("crop"):
@@ -114,7 +115,7 @@ with gr.Blocks(title="FarmAdvocate", theme=theme, css=CSS) as demo:
             badge = gr.HTML()
             answer = gr.Textbox(label="Answer", lines=5, interactive=False, show_copy_button=True)
             answer_en = gr.Textbox(label="Answer in English", lines=3, interactive=False)
-            with gr.Accordion("📖 Sources used", open=False):
+            with gr.Accordion("Sources used", open=False):
                 sources = gr.Markdown()
             raw = gr.JSON(label="API response", visible=False)
     gr.Markdown(FOOTER)

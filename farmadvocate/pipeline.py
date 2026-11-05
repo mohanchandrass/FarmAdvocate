@@ -33,6 +33,26 @@ def _source(score, c):
             "score": round(score, 3), "text": c["text"]}
 
 
+def quick_refusal(question, lang):
+    """Refuse an English pest, off-topic or unsupported-crop question without touching a GPU.
+
+    Returns the same result dict as answer(), or None if the question should go through the full pipeline.
+    Hindi and Kannada need the translator first, so they always take the full path.
+    """
+    if lang != "en":
+        return None
+    if rules.route(question):
+        status = "out_of_scope"
+    elif rules.detect_crop(question)[1]:
+        status = "unsupported_crop"
+    else:
+        return None
+    msg = config.MESSAGES[status]
+    return {"status": status, "answer": msg, "answer_en": msg, "sources": [], "question_en": question,
+            "crop": None, "top_score": None, "raw_answer_en": None, "verifier_ok": None, "missing_numbers": [],
+            "failed_reason": None, "numbers_preserved": True, "seconds": 0.0}
+
+
 def answer(question, lang="en", mode="rag"):
     """mode='rag' is the full system; mode='closed_book' is baseline A (no router, no retrieval)."""
     s = load()
