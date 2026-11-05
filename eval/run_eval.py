@@ -154,9 +154,30 @@ def metrics():
 
     gen = [(c, rag[c["id"]]) for c in cases.values() if not c["should_refuse"] and c["id"] in rag and rag[c["id"]]["raw_answer_en"]]
     lines.append(f"Fallback rate (verifier replaced answer): {pct(sum(1 for _, r in gen if r['status'] == 'unverified'), len(gen))}")
-    lab = [(c, labels.get(c["id"])) for c, r in gen if r["status"] == "verified" and labels.get(c["id"])]
-    sup = sum(1 for _, l in lab if l == "supported")
-    lines.append(f"Groundedness on generated (non-fallback) answers, labelled by Claude: {pct(sup, len(lab))} fully supported")
+    lr, lc = labels.get("rag", {}), labels.get("closed_book", {})
+    if lr:
+        # Reviewed correctness (Claude's labels, not a human's): strict = fully correct; lenient adds partial.
+        en_ids = [c["id"] for c in en]
+        a = [lc[i]["correct"] for i in en_ids if i in lc]
+        b = [lr[i]["correct"] for i in en_ids if i in lr]
+        row = lambda n, v: f"| {n} | {pct(v.count('yes'), len(v))} | {pct(v.count('yes') + v.count('partial'), len(v))} |"
+        lines += ["| Configuration (24 English questions) | Reviewed: fully correct | Reviewed: correct or partial |", "|---|---|---|",
+                  row("A. AgriParam alone", a), row("B/C. RAG (verifier changed no answer)", b), ""]
+        lines.append("| Language (paired subset, reviewed) | Fully correct | Correct or partial |")
+        lines.append("|---|---|---|")
+        paired = {c["pair_id"] for c in cases.values() if c["pair_id"]}
+        for lang in ("en", "hi", "kn"):
+            ids = [c["id"] for c in cases.values() if c["lang"] == lang and not c["should_refuse"] and (lang != "en" or c["id"] in paired)]
+            v = [lr[i]["correct"] for i in ids if i in lr]
+            lines.append(f"| {lang} | {pct(v.count('yes'), len(v))} | {pct(v.count('yes') + v.count('partial'), len(v))} |")
+        lines.append("")
+        gl = [lr[c["id"]]["grounded"] for c, r in gen if c["id"] in lr]
+        lines.append(f"Groundedness on {len(gl)} generated answers (Claude's labels): supported {pct(gl.count('supported'), len(gl))}, "
+                     f"partial {gl.count('partial')}, unsupported {gl.count('unsupported')}, no answer {gl.count('no_answer')}")
+        gw = [lr[c["id"]] for c, r in gen if c["id"] in lr and lr[c["id"]]["grounded"] == "supported"]
+        lines.append(f"  of which supported but incorrect (faithful to the wrong passage): {sum(1 for x in gw if x['correct'] == 'no')}")
+        agree = [(facts_ok(c, rag[c["id"]]["answer_en"]), lr[c["id"]]["correct"] == "yes") for c in cases.values() if c["id"] in lr and c["id"] in rag]
+        lines.append(f"Agreement between regex and reviewer on 'fully correct' (40 answerable cases): {pct(sum(1 for x, y in agree if x == y), len(agree))}")
     lines.append(f"Verifier pass rate on generated answers: {pct(sum(1 for _, r in gen if r['verifier_ok']), len(gen))}")
 
     ans = [c for c in cases.values() if not c["should_refuse"] and c["id"] in rag]

@@ -43,7 +43,9 @@ source passage itself. Translated answers whose numbers changed are withheld in 
 ## Run it
 * **Hosted:** open the Space (link below). The first load after a sleep can take several minutes, and the free GPU
   quota is small for logged-out visitors (about 2 minutes a day); sign in to Hugging Face for more.
-* **Locally or on Colab:** a GPU is needed for AgriParam. See `notebooks/colab_runner.ipynb`.
+* **Locally or on Colab:** a GPU is needed for AgriParam. `notebooks/colab_runner.ipynb` runs the checks and the
+  evaluation on a Colab T4. The reported results were produced against the Space instead:
+  `python eval/run_eval.py space` then `python eval/make_labels.py` and `python eval/run_eval.py metrics`.
   ```
   pip install -r requirements.txt   # plus: pip install gradio==5.49.1 spaces
   export HF_TOKEN=...                # IndicTrans2 is gated: accept its terms on Hugging Face first
@@ -53,8 +55,17 @@ source passage itself. Translated answers whose numbers changed are withheld in 
 
 ## Evaluation
 50 test cases (24 English, 8 Hindi, 8 Kannada answerable, 10 that should be refused) plus 6 dev cases used only to set
-the retrieval threshold. See `eval/REPORT.md` for metrics, the comparison of AgriParam alone vs RAG vs RAG with the
-verifier, and the failure analysis.
+the retrieval threshold, run against the deployed Space. Full metrics and the failure analysis are in
+[`eval/REPORT.md`](eval/REPORT.md).
+
+| Result (24 English questions) | AgriParam alone | With retrieval (RAG) |
+|---|---|---|
+| Fully correct (reviewed) | 3 (12%) | 14 (58%) |
+| Correct or partial | 8 (33%) | 17 (71%) |
+
+Other results: retrieval Hit@3 85%; 10/10 refusal cases handled; 1 false refusal in 40; 79% of generated answers fully
+supported by their retrieved passages; Hindi 4/8 and Kannada 5/8 fully correct. The numeric verifier flagged nothing,
+because every wrong number was present in the retrieved text (it was misapplied, not invented): see the report.
 
 > **Disclosure:** the test questions, gold answers and result labels were produced by Claude, an AI model. Hindi and
 > Kannada questions were drafted directly rather than machine-translated, but no native speaker or independent human
@@ -65,6 +76,6 @@ Tamil Nadu recommendations only; six crops; no pest or disease advice; AgriParam
 only English and Hindi natively, so Kannada goes through translation; free-tier GPU quota limits demo traffic.
 
 ## Links
-* Space: _added after deployment_
+* Space: https://huggingface.co/spaces/DaMCSS/FarmAdvocate
 * Demo recording: _added after recording_
 * Technical requirements document: [`docs/TRD.md`](docs/TRD.md)

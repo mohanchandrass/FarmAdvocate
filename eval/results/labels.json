@@ -1,0 +1,302 @@
+{
+ "rag": {
+  "en-R1": {
+   "correct": "no",
+   "grounded": "unsupported",
+   "note": "Source says 2 kg per ACRE (SRI hybrid seed); answer changed it to per hectare. Gold passage (p17) not retrieved."
+  },
+  "en-R2": {
+   "correct": "no",
+   "grounded": "partial",
+   "note": "1.5 cm is in the passage but is the day-5 depth; gold is 2.5 cm. '4 leaves old' is invented."
+  },
+  "en-R3": {
+   "correct": "partial",
+   "grounded": "supported",
+   "note": "22 kg urea is right; omits the 10 kg N/ha."
+  },
+  "en-R4": {
+   "correct": "no",
+   "grounded": "supported",
+   "note": "Faithful to the hybrid rice SEED PRODUCTION passage (150:60:60); gold is commercial hybrid rice (175:60:60). Wrong passage retrieved."
+  },
+  "en-R5": {
+   "correct": "yes",
+   "grounded": "supported",
+   "note": "20x10, 50 hills/m2."
+  },
+  "en-R6": {
+   "correct": "no",
+   "grounded": "unsupported",
+   "note": "12-15 kg/ha is the TWO-seedling rate on the adjacent line; single-seedling rate is 5-7."
+  },
+  "en-G1": {
+   "correct": "yes",
+   "grounded": "supported",
+   "note": ""
+  },
+  "en-G2": {
+   "correct": "yes",
+   "grounded": "supported",
+   "note": "40:20:20 stated as N, P2O5, K2O (regex pattern too strict)."
+  },
+  "en-G3": {
+   "correct": "no",
+   "grounded": "no_answer",
+   "note": "Echoed the question; no answer. Contains no number, so the verifier cannot flag it."
+  },
+  "en-G4": {
+   "correct": "no",
+   "grounded": "unsupported",
+   "note": "Gave plant spacing (7.5-10 cm) as row spacing; gold is 22.5-30 cm."
+  },
+  "en-M1": {
+   "correct": "yes",
+   "grounded": "supported",
+   "note": ""
+  },
+  "en-M2": {
+   "correct": "yes",
+   "grounded": "supported",
+   "note": ""
+  },
+  "en-M3": {
+   "correct": "no",
+   "grounded": "supported",
+   "note": "Faithful to the hybrid maize SEED PRODUCTION passage (150:75:75); gold is 250:75:75. Wrong passage retrieved."
+  },
+  "en-M4": {
+   "correct": "yes",
+   "grounded": "supported",
+   "note": ""
+  },
+  "en-M5": {
+   "correct": "yes",
+   "grounded": "supported",
+   "note": ""
+  },
+  "en-W1": {
+   "correct": "yes",
+   "grounded": "supported",
+   "note": ""
+  },
+  "en-W2": {
+   "correct": "yes",
+   "grounded": "supported",
+   "note": "80:40:40 stated as N, P2O5, K2O (regex pattern too strict)."
+  },
+  "en-W3": {
+   "correct": "yes",
+   "grounded": "supported",
+   "note": ""
+  },
+  "en-W4": {
+   "correct": "yes",
+   "grounded": "supported",
+   "note": ""
+  },
+  "en-D1": {
+   "correct": "yes",
+   "grounded": "supported",
+   "note": ""
+  },
+  "en-D2": {
+   "correct": "partial",
+   "grounded": "supported",
+   "note": "Omits the 50% flowering stage."
+  },
+  "en-D3": {
+   "correct": "yes",
+   "grounded": "supported",
+   "note": ""
+  },
+  "en-N1": {
+   "correct": "yes",
+   "grounded": "supported",
+   "note": "125 kg/ha is in the guide at p190 (p185 says 120)."
+  },
+  "en-N2": {
+   "correct": "partial",
+   "grounded": "partial",
+   "note": "States 400 kg/ha but opens with 'the passage does not provide specific quantities', which is false."
+  },
+  "hi-R1": {
+   "correct": "no",
+   "grounded": "supported",
+   "note": "Faithful to the SRI passage (2 kg per acre); wrong passage for the question."
+  },
+  "hi-R3": {
+   "correct": "yes",
+   "grounded": "supported",
+   "note": ""
+  },
+  "hi-R4": {
+   "correct": "no",
+   "grounded": "supported",
+   "note": "Same hybrid seed production passage as en-R4."
+  },
+  "hi-G2": {
+   "correct": "yes",
+   "grounded": "supported",
+   "note": ""
+  },
+  "hi-M3": {
+   "correct": "no",
+   "grounded": "supported",
+   "note": "Same hybrid seed production passage as en-M3; also drops the P and K values."
+  },
+  "hi-W1": {
+   "correct": "yes",
+   "grounded": "supported",
+   "note": ""
+  },
+  "hi-D1": {
+   "correct": "no",
+   "grounded": "no_answer",
+   "note": "False refusal: top similarity 0.667 is just under the 0.68 threshold."
+  },
+  "hi-N2": {
+   "correct": "yes",
+   "grounded": "supported",
+   "note": "Crop not detected ('peanuts' plural), retrieval still found the right passage."
+  },
+  "kn-R2": {
+   "correct": "no",
+   "grounded": "unsupported",
+   "note": "Combined the 1.5 cm depth with an unrelated '18 to 24 hours'; gold is 2.5 cm."
+  },
+  "kn-R5": {
+   "correct": "partial",
+   "grounded": "partial",
+   "note": "Contains 20x10 but garbled as '20x10^6'."
+  },
+  "kn-G1": {
+   "correct": "yes",
+   "grounded": "supported",
+   "note": ""
+  },
+  "kn-M1": {
+   "correct": "yes",
+   "grounded": "supported",
+   "note": ""
+  },
+  "kn-W2": {
+   "correct": "yes",
+   "grounded": "supported",
+   "note": "80:40:40 (regex pattern too strict)."
+  },
+  "kn-W4": {
+   "correct": "yes",
+   "grounded": "supported",
+   "note": ""
+  },
+  "kn-D2": {
+   "correct": "no",
+   "grounded": "supported",
+   "note": "Query mistranslated: tur (redgram) became 'skin', so no crop was detected and wheat stages were returned."
+  },
+  "kn-N1": {
+   "correct": "yes",
+   "grounded": "supported",
+   "note": "Mixes the p185 and p190 seed rates, both in the guide."
+  }
+ },
+ "closed_book": {
+  "en-R1": {
+   "correct": "no",
+   "note": "15 kg per acre"
+  },
+  "en-R2": {
+   "correct": "partial",
+   "note": "2-3 cm range includes 2.5, but invented context"
+  },
+  "en-R3": {
+   "correct": "no",
+   "note": ""
+  },
+  "en-R4": {
+   "correct": "no",
+   "note": ""
+  },
+  "en-R5": {
+   "correct": "no",
+   "note": ""
+  },
+  "en-R6": {
+   "correct": "no",
+   "note": ""
+  },
+  "en-G1": {
+   "correct": "no",
+   "note": "80-100 kg/ha"
+  },
+  "en-G2": {
+   "correct": "no",
+   "note": ""
+  },
+  "en-G3": {
+   "correct": "yes",
+   "note": "late June to early July"
+  },
+  "en-G4": {
+   "correct": "no",
+   "note": ""
+  },
+  "en-M1": {
+   "correct": "yes",
+   "note": "20 kg/ha"
+  },
+  "en-M2": {
+   "correct": "partial",
+   "note": "range 20-30 cm includes 25"
+  },
+  "en-M3": {
+   "correct": "no",
+   "note": ""
+  },
+  "en-M4": {
+   "correct": "no",
+   "note": ""
+  },
+  "en-M5": {
+   "correct": "no",
+   "note": ""
+  },
+  "en-W1": {
+   "correct": "partial",
+   "note": "mid-October to mid-November"
+  },
+  "en-W2": {
+   "correct": "no",
+   "note": ""
+  },
+  "en-W3": {
+   "correct": "partial",
+   "note": "20-25 cm, 3-5 cm"
+  },
+  "en-W4": {
+   "correct": "yes",
+   "note": "4 to 6"
+  },
+  "en-D1": {
+   "correct": "no",
+   "note": ""
+  },
+  "en-D2": {
+   "correct": "partial",
+   "note": "flowering and pod formation only"
+  },
+  "en-D3": {
+   "correct": "no",
+   "note": "June 20 to July 10; guide says July-August (the regex wrongly matched 'July')"
+  },
+  "en-N1": {
+   "correct": "no",
+   "note": "100 kg/ha"
+  },
+  "en-N2": {
+   "correct": "no",
+   "note": "200-300 kg/ha"
+  }
+ }
+}
