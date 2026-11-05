@@ -19,6 +19,8 @@ def route(question_en):
 def detect_crop(question_en):
     """Return (crop or None, unsupported: bool). Supported crops win over unsupported mentions."""
     t = question_en.lower()
+    if _has_term(question_en, config.UNSUPPORTED_OVERRIDE):
+        return None, True
     for crop, aliases in config.CROP_ALIASES.items():
         if any(re.search(rf"\b{re.escape(a)}\b", t) for a in aliases):
             return crop, False

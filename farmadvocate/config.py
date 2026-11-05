@@ -31,12 +31,16 @@ SCORE_THRESHOLD = float(os.environ.get("SCORE_THRESHOLD", "0.68"))
 
 CROP_ALIASES = {
     "Rice": ["rice", "paddy"],
-    "Ragi": ["ragi", "finger millet", "nachni"],
+    # IndicTrans2 often renders ragi as plain 'millet'; the guide section we index covers only finger millet.
+    "Ragi": ["ragi", "finger millet", "nachni", "millet", "millets"],
     "Maize": ["maize", "corn", "makka"],
     "Wheat": ["wheat", "gehun"],
     "Redgram": ["redgram", "red gram", "pigeon pea", "pigeonpea", "arhar", "tur", "toor"],
     "Groundnut": ["groundnut", "ground nut", "peanut", "moongphali"],
 }
+# Checked before CROP_ALIASES so that e.g. 'pearl millet' is not mistaken for ragi via 'millet'.
+UNSUPPORTED_OVERRIDE = ["pearl millet", "foxtail millet", "little millet", "kodo millet", "barnyard millet",
+                        "proso millet", "bajra", "cumbu", "sorghum", "jowar"]
 # Crops the guide covers but this build does not index, plus common crops it does not cover.
 OUT_OF_CORPUS_CROPS = [
     "cotton", "sugarcane", "tomato", "onion", "potato", "banana", "mango", "coconut", "tea",
