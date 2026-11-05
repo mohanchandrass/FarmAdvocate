@@ -125,13 +125,20 @@ def ask_live(question, lang_label):
     return _answer(question, lang_label, use_saved=False)
 
 
+# Each example says what to expect, including the ones that are refused or known to be weak.
 EXAMPLES = [
-    ["What is the seed rate for groundnut?", "English"],
-    ["How much gypsum should be applied to groundnut?", "English"],
-    ["गेहूं की बुवाई का सही समय क्या है?", "हिन्दी (Hindi)"],
-    ["रागी के लिए नाइट्रोजन, फास्फोरस और पोटाश की अनुशंसित मात्रा क्या है?", "हिन्दी (Hindi)"],
-    ["ಗೋಧಿ ಬೆಳೆಗೆ ಎಷ್ಟು ಬಾರಿ ನೀರು ಹಾಯಿಸಬೇಕು?", "ಕನ್ನಡ (Kannada)"],
-    ["How do I control stem borer in rice?", "English"],
+    ["What is the seed rate for groundnut?", "English",
+     "Cited answer: 125 kg/ha (the guide also gives 120)."],
+    ["How much gypsum should be applied to groundnut?", "English",
+     "Known weak case: shows the source passage, which has the right 400 kg/ha."],
+    ["गेहूं की बुवाई का सही समय क्या है?", "हिन्दी (Hindi)",
+     "Cited answer in Hindi: 15 October to first week of November."],
+    ["रागी के लिए नाइट्रोजन, फास्फोरस और पोटाश की अनुशंसित मात्रा क्या है?", "हिन्दी (Hindi)",
+     "Right dose, but Hindi calls ragi बाजरा (pearl millet). See English line."],
+    ["ಗೋಧಿ ಬೆಳೆಗೆ ಎಷ್ಟು ಬಾರಿ ನೀರು ಹಾಯಿಸಬೇಕು?", "ಕನ್ನಡ (Kannada)",
+     "Cited answer in Kannada: 4 to 6 irrigations."],
+    ["How do I control stem borer in rice?", "English",
+     "Refused on purpose: pest and disease advice is out of scope."],
 ]
 
 theme = gr.themes.Soft(primary_hue="green", secondary_hue="lime", neutral_hue="stone")
@@ -144,7 +151,9 @@ with gr.Blocks(title="FarmAdvocate", theme=theme, css=CSS) as demo:
                                   placeholder="e.g. What is the seed rate for groundnut?")
             lang = gr.Dropdown(list(config.LANGS), value="English", label="Language")
             btn = gr.Button("Get advice", variant="primary")
-            gr.Examples(EXAMPLES, inputs=[question, lang], cache_examples=False, label="Try an example")
+            expect = gr.Textbox(label="What this example shows", interactive=False, lines=2)
+            # typing your own question clears the note left by a clicked example
+            question.input(lambda: "", None, expect, api_name=False, show_progress="hidden")
         with gr.Column(scale=6):
             badge = gr.HTML()
             answer = gr.Textbox(label="Answer", lines=5, interactive=False, show_copy_button=True)
@@ -152,6 +161,8 @@ with gr.Blocks(title="FarmAdvocate", theme=theme, css=CSS) as demo:
             with gr.Accordion("Sources used", open=False):
                 sources = gr.Markdown()
             raw = gr.JSON(label="API response", visible=False)
+    # full width, so the "what this example shows" column is readable
+    gr.Examples(EXAMPLES, inputs=[question, lang, expect], cache_examples=False, label="Try an example")
     gr.Markdown(FOOTER)
     loader = gr.HTML(LOADER, visible=False)  # shown while a question is processed
     outputs = [answer, answer_en, badge, sources, raw]

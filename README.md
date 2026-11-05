@@ -37,7 +37,7 @@ Kendra (KVK).
 | API included | The same app exposes a `/ask` endpoint for programmatic use |
 | Free to host | Runs on a Hugging Face ZeroGPU Space; no server to manage |
 
-**Try these:** `What is the seed rate for groundnut?` | `गेहूं की बुवाई का सही समय क्या है?` | `ಗೋಧಿ ಬೆಳೆಗೆ ಎಷ್ಟು ಬಾರಿ ನೀರು ಹಾಯಿಸಬೇಕು?` | `How do I control stem borer in rice?` (politely refused)
+**Try these:** `What is the seed rate for groundnut?` | `गेहूं की बुवाई का सही समय क्या है?` | `ಗೋಧಿ ಬೆಳೆಗೆ ಎಷ್ಟು ಬಾರಿ ನೀರು ಹಾಯಿಸಬೇಕು?` | `How do I control stem borer in rice?` (politely refused). Each built-in example in the app says what to expect, including this deliberate refusal and one known weak case (gypsum), so a refusal or a weak answer is not mistaken for a bug.
 
 ## How it works
 ```mermaid
