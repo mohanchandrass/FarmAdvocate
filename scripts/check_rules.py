@@ -4,6 +4,7 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 from farmadvocate import rules  # noqa: E402
+from farmadvocate import cache  # noqa: E402
 
 CTX = ("Apply 10 kg N/ha (22 kg urea) at puddling. Basal NPK @ 100 : 50 : 50 kg / ha. "
        "Maintain 2.5 cm depth of water. Seed rate 20 kg for hybrids. Dose 1,000 g per ha. "
@@ -56,6 +57,8 @@ checks = [
     ("coverage: seed rate full", rules.topic_coverage("What is the seed rate for rice?", "Crop: Rice. Seed rate 30 kg."), 1.0),
     ("overlap: short answer exempt", rules.answer_overlap("Answer: 20 kg/ha", "nothing in common"), 1.0),
     ("overlap: off-script long answer low", rules.answer_overlap("Once upon a time a pirate sailed across the stormy ocean seeking treasure", "Seed rate 30 kg for nursery in rice"), 0.0),
+    ("quota error detected", cache.is_quota_error(Exception("ZeroGPU quota exceeded: You have exceeded your ZeroGPU runs limit")), True),
+    ("other errors are not treated as quota", cache.is_quota_error(Exception("CUDA out of memory")), False),
     ("verify bare numbers ignored", rules.verify_numbers("1. First step. Step 2 is next.", CTX)[0], True),
 ]
 bad = [c for c in checks if c[1] != c[2]]

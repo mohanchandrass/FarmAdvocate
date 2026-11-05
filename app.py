@@ -37,7 +37,17 @@ CSS = """
 .badge.stop {background: #fdeaea; color: #8a1c1c; border: 1px solid #efb7b7;}
 .meta {font-size: .85rem; color: #5b6b5e; font-weight: 400; margin-top: 4px;}
 #notice {font-size: .88rem; color: #5b6b5e;}
+/* One centred loader instead of a spinner on every output box */
+.loader-overlay {position: fixed; inset: 0; z-index: 1000; display: flex; flex-direction: column; align-items: center;
+                 justify-content: center; gap: 14px; background: rgba(255,255,255,.62); backdrop-filter: blur(1px);}
+.loader-spin {width: 46px; height: 46px; border: 5px solid #cfe6d3; border-top-color: #2f7d44; border-radius: 50%;
+              animation: fa-spin .85s linear infinite;}
+.loader-text {color: #14532d; font-weight: 600;}
+@keyframes fa-spin {to {transform: rotate(360deg);}}
 """
+
+LOADER = ('<div class="loader-overlay"><div class="loader-spin"></div>'
+          '<div class="loader-text">Finding your answer...</div></div>')
 
 HERO = """
 <div id="hero">
@@ -84,16 +94,21 @@ def _answer(question, lang_label, use_saved):
         return "", "", '<div class="badge warn">Please type a question.</div>', "", {}
     code, q = config.LANGS[lang_label], question.strip()
     saved = SAVED.get(saved_answers.cache_key(q, code)) if use_saved else None
-    if saved:  # no GPU needed
-        out = dict(saved, cached=True)
-    else:
-        out = pipeline.quick_refusal(q, code) or _run(q, code)  # refusals need no GPU either
+    out = pipeline.quick_refusal(q, code)  # refusals need no model, so no GPU
+    if out is None:
+        try:
+            out = _run(q, code)  # the normal path: every question runs the models live
+        except Exception as exc:
+            # Only when the free GPU quota is used up, fall back to a stored output of this same system,
+            # and say so on the page. Never used by the evaluation (use_saved=False).
+            if saved and saved_answers.is_quota_error(exc):
+                out = dict(saved, cached=True)
+            else:
+                raise
     text, kind = BADGES.get(out["status"], (out["status"], "warn"))
     meta = f"Understood as: “{html.escape(out['question_en'])}”"
     if out.get("crop"):
         meta += f" · Crop: {html.escape(out['crop'])}"
-    if out.get("cached"):
-        meta += " · Saved answer from the evaluation run (no GPU used)"
     src = "\n\n".join(
         f"**{s['crop']} · {s.get('system') or 'General'} · {s['section']} · page {s['page']}** (similarity {s['score']})\n\n> {s['text']}"
         for s in out["sources"]) or "_No sources used for this reply._"
@@ -138,8 +153,13 @@ with gr.Blocks(title="FarmAdvocate", theme=theme, css=CSS) as demo:
                 sources = gr.Markdown()
             raw = gr.JSON(label="API response", visible=False)
     gr.Markdown(FOOTER)
-    btn.click(ask, [question, lang], [answer, answer_en, badge, sources, raw], api_name="ask")
-    question.submit(ask, [question, lang], [answer, answer_en, badge, sources, raw], api_name=False)
+    loader = gr.HTML(LOADER, visible=False)  # shown while a question is processed
+    outputs = [answer, answer_en, badge, sources, raw]
+    for trigger, name in ((btn.click, "ask"), (question.submit, False)):
+        # show the single loader, run the pipeline with the per-box spinners hidden, then hide the loader
+        (trigger(lambda: gr.update(visible=True), None, loader, show_progress="hidden", queue=False, api_name=False)
+         .then(ask, [question, lang], outputs, api_name=name, show_progress="hidden")
+         .then(lambda: gr.update(visible=False), None, loader, show_progress="hidden", queue=False, api_name=False))
     hidden = gr.Button(visible=False)  # endpoints used only by the evaluation
     hidden.click(closed_book, [question, lang], [raw], api_name="closed_book")
     hidden.click(ask_live, [question, lang], [answer, answer_en, badge, sources, raw], api_name="ask_live")
