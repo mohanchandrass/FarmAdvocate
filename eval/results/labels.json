@@ -3,7 +3,7 @@
   "en-R1": {
    "correct": "no",
    "grounded": "unsupported",
-   "note": "Source says 2 kg per ACRE (SRI hybrid seed); answer changed it to per hectare. Gold passage (p17) not retrieved."
+   "note": "The correct passage (p28, 20 kg/ha) WAS in the model's context at rank 2, but the model used the SRI line '2 kg per acre' from rank 1 and changed it to per hectare. A generation error among near-tied passages, not a retrieval miss (the p17 gold passage was not retrieved, but p28 gives the same fact)."
   },
   "en-R2": {
    "correct": "no",
@@ -123,7 +123,7 @@
   "hi-R1": {
    "correct": "no",
    "grounded": "supported",
-   "note": "Faithful to the SRI passage (2 kg per acre); wrong passage for the question."
+   "note": "Faithful to the SRI passage (2 kg per acre), which ranked first; the correct p28 passage (20 kg/ha) was also in context. Same near-tie as en-R1."
   },
   "hi-R3": {
    "correct": "yes",
@@ -163,7 +163,7 @@
   "kn-R2": {
    "correct": "no",
    "grounded": "unsupported",
-   "note": "Combined the 1.5 cm depth with an unrelated '18 to 24 hours'; gold is 2.5 cm."
+   "note": "Merged the 1.5 cm depth with an unrelated '18 to 24 hours' (the drain-after-sowing time); gold is 2.5 cm. A different error from en-R2."
   },
   "kn-R5": {
    "correct": "partial",
@@ -193,7 +193,7 @@
   "kn-D2": {
    "correct": "no",
    "grounded": "supported",
-   "note": "Query mistranslated: tur (redgram) became 'skin', so no crop was detected and wheat stages were returned."
+   "note": "Query mistranslated: tur (redgram) became 'skin', so no crop was detected and the crop filter was off; wheat text then scored 0.688, just above the 0.68 threshold, and wheat stages were returned."
   },
   "kn-N1": {
    "correct": "yes",

@@ -30,6 +30,6 @@ Agreement between regex and reviewer on 'fully correct' (40 answerable cases): 3
 Verifier pass rate on generated answers: 39/39 (100%)
 Refusal accuracy (should refuse): 10/10 (100%)
 False refusals (answerable refused): 1/40 (2%)
-Retrieval Hit@3 (English meaning): 34/40 (85%)
+Retrieval Hit@3 by gold page: 34/40 (85%); by content (a top-3 chunk holds every gold fact): 36/40 (90%)
 Numbers preserved through translation (hi/kn answers): 15/16 (94%)
 Median seconds per query: 0.8

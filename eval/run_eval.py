@@ -103,7 +103,10 @@ def space():
     """Run the evaluation against the deployed Space API. Resumable if the GPU quota runs out."""
     from gradio_client import Client
     from huggingface_hub import get_token
-    client = Client("DaMCSS/FarmAdvocate", token=get_token(), verbose=False)
+    try:  # gradio_client 2.x names the argument `token`, 1.x names it `hf_token`
+        client = Client("DaMCSS/FarmAdvocate", token=get_token(), verbose=False)
+    except TypeError:
+        client = Client("DaMCSS/FarmAdvocate", hf_token=get_token(), verbose=False)
     label = {"en": "English", "hi": "हिन्दी (Hindi)", "kn": "ಕನ್ನಡ (Kannada)"}
     cases = load_cases("test_cases.jsonl")
     plans = (("rag.jsonl", "/ask", cases),
@@ -191,7 +194,8 @@ def metrics():
     lines.append(f"False refusals (answerable refused): {pct(sum(refused(rag[c['id']]) for c in ans), len(ans))}")
     if ret:
         hits = [ret[c["id"]]["hit"] for c in ans if ret.get(c["id"]) and ret[c["id"]]["hit"] is not None]
-        lines.append(f"Retrieval Hit@3 (English meaning): {pct(sum(hits), len(hits))}")
+        chits = [ret[c["id"]].get("content_hit") for c in ans if ret.get(c["id"]) and ret[c["id"]].get("content_hit") is not None]
+        lines.append(f"Retrieval Hit@3 by gold page: {pct(sum(hits), len(hits))}; by content (a top-3 chunk holds every gold fact): {pct(sum(chits), len(chits))}")
     nl = [rag[c["id"]] for c in ans if c["lang"] != "en"]
     lines.append(f"Numbers preserved through translation (hi/kn answers): {pct(sum(1 for r in nl if r['numbers_preserved']), len(nl))}")
     secs = [r["seconds"] for r in rag.values()]

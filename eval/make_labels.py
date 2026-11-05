@@ -11,7 +11,7 @@ from pathlib import Path
 Y, P, N = "yes", "partial", "no"
 S, SP, U, NA = "supported", "partial", "unsupported", "no_answer"
 RAG = {
-    "en-R1": (N, U, "Source says 2 kg per ACRE (SRI hybrid seed); answer changed it to per hectare. Gold passage (p17) not retrieved."),
+    "en-R1": (N, U, "The correct passage (p28, 20 kg/ha) WAS in the model's context at rank 2, but the model used the SRI line '2 kg per acre' from rank 1 and changed it to per hectare. A generation error among near-tied passages, not a retrieval miss (the p17 gold passage was not retrieved, but p28 gives the same fact)."),
     "en-R2": (N, SP, "1.5 cm is in the passage but is the day-5 depth; gold is 2.5 cm. '4 leaves old' is invented."),
     "en-R3": (P, S, "22 kg urea is right; omits the 10 kg N/ha."),
     "en-R4": (N, S, "Faithful to the hybrid rice SEED PRODUCTION passage (150:60:60); gold is commercial hybrid rice (175:60:60). Wrong passage retrieved."),
@@ -35,7 +35,7 @@ RAG = {
     "en-D3": (Y, S, ""),
     "en-N1": (Y, S, "125 kg/ha is in the guide at p190 (p185 says 120)."),
     "en-N2": (P, SP, "States 400 kg/ha but opens with 'the passage does not provide specific quantities', which is false."),
-    "hi-R1": (N, S, "Faithful to the SRI passage (2 kg per acre); wrong passage for the question."),
+    "hi-R1": (N, S, "Faithful to the SRI passage (2 kg per acre), which ranked first; the correct p28 passage (20 kg/ha) was also in context. Same near-tie as en-R1."),
     "hi-R3": (Y, S, ""),
     "hi-R4": (N, S, "Same hybrid seed production passage as en-R4."),
     "hi-G2": (Y, S, ""),
@@ -43,13 +43,13 @@ RAG = {
     "hi-W1": (Y, S, ""),
     "hi-D1": (N, NA, "False refusal: top similarity 0.667 is just under the 0.68 threshold."),
     "hi-N2": (Y, S, "Crop not detected ('peanuts' plural), retrieval still found the right passage."),
-    "kn-R2": (N, U, "Combined the 1.5 cm depth with an unrelated '18 to 24 hours'; gold is 2.5 cm."),
+    "kn-R2": (N, U, "Merged the 1.5 cm depth with an unrelated '18 to 24 hours' (the drain-after-sowing time); gold is 2.5 cm. A different error from en-R2."),
     "kn-R5": (P, SP, "Contains 20x10 but garbled as '20x10^6'."),
     "kn-G1": (Y, S, ""),
     "kn-M1": (Y, S, ""),
     "kn-W2": (Y, S, "80:40:40 (regex pattern too strict)."),
     "kn-W4": (Y, S, ""),
-    "kn-D2": (N, S, "Query mistranslated: tur (redgram) became 'skin', so no crop was detected and wheat stages were returned."),
+    "kn-D2": (N, S, "Query mistranslated: tur (redgram) became 'skin', so no crop was detected and the crop filter was off; wheat text then scored 0.688, just above the 0.68 threshold, and wheat stages were returned."),
     "kn-N1": (Y, S, "Mixes the p185 and p190 seed rates, both in the guide."),
 }
 # Closed-book baseline (AgriParam alone), reviewed against the guide's value.
