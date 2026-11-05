@@ -147,7 +147,7 @@ notebooks/              optional Colab runner
 ## Case study submission (CS3235, Option 2)
 
 > **This repository is the individual submission for the CS3235 mini-project, Option 2: AI Farmer Advisory Assistant**
-> (AI4Bharat and BharatGen sovereign models). Submitted by **Mohan Chandra S S**, deadline 6 Nov 2026, CIE3 lab assessment.
+> (AI4Bharat and BharatGen sovereign models). Submitted by **Mohan Chandra S S (USN 1RVU23CSE282)**, deadline 6 Nov 2026, CIE3 lab assessment.
 
 **Assignment brief:** *"Provide Indian-language guidance for crop, irrigation and fertilizer queries, backed by curated
 agricultural sources. Models/data: BharatGen AgriParam; AI4Bharat IndicTrans2; agricultural advisory documents.
