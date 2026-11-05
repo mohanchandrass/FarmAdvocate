@@ -526,6 +526,20 @@ An external review of v3, supplied by Mohan. Verdict: **proceed with changes**.
 | Compare no-RAG, RAG and RAG + verifier | Accepted: adds no GPU time |
 | Implementation order and evidence-based gates | Accepted: already matched this order |
 
+## Appendix D: Implementation notes (what changed during the build)
+
+* **Evaluation ran against the deployed Space, not Colab.** The free ZeroGPU quota was enough for all 74 calls, so the
+  Colab run was dropped. `notebooks/colab_runner.ipynb` remains as an unused fallback.
+* **Vercel, NLI scoring and the optional nutrient-association rule were not built**, as decided in sections 12 and 6.
+* **Translation fixes found in testing:** ratios are spelled out before translation (Kannada dropped them), ordinals are
+  converted to words, and translations whose numbers changed are withheld.
+* **Verifier tightened** to require a compatible unit family, after review of the first live answers. It still cannot
+  catch a real number used in the wrong place (see `eval/REPORT.md`).
+* **Crop aliases:** "millet" maps to ragi; pearl millet and sorghum are refused explicitly.
+* **Hub pins:** IndicTrans2 is pinned to the commits behind the maintainers' compatibility PRs (en-indic `bf4b89ee`,
+  indic-en `af1fe3d7`); AgriParam follows `main` and is not commit-pinned.
+* **Results:** AgriParam alone 3/24 fully correct vs 14/24 with retrieval; refusals 10/10; Hit@3 85%.
+
 ## Appendix C: Rubric-fit review outcome
 
 A separate Sonnet agent reviewed v4, acting as the evaluator. Verdict: **would score well if executed; the main risk is the schedule**. Ratings: Model selection, RAG and Testing strong; Problem definition and Docs adequate; Working app at risk until Gate 3 passes. All four hard requirements are met, subject to Gate 3 and the final push.
